@@ -1,0 +1,7 @@
+venv/
+productos/
+PastasAColores_Mgue/
+db.sqlite3
+__pycache__/
+*.pyc
+.DS_Store
