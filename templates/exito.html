@@ -1,0 +1,10 @@
+<script>
+    // Buscamos el botón de enviar pedido por WhatsApp
+    document.getElementById('btn-envio').addEventListener('click', function() {
+        // Esperamos 2 segundos para que se dispare la pestaña de WhatsApp
+        setTimeout(function() {
+            // Redirige la pestaña actual automáticamente a la Home principal
+            window.location.href = "/"; 
+        }, 2000);
+    });
+</script>

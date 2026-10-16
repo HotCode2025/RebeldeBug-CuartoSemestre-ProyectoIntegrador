@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -7,176 +6,61 @@
     <title>Pastas a Colores | Sabor y Arte</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #FDFBF7; /* Blanco Crema Orgánico */
-            color: #1C1C1C; /* Negro Carbón */
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #1C1C1C;
-            text-align: center;
-            padding: 2rem 1rem;
-        }
-        .logo-img {
-            width: 200px; /* Tamaño solicitado de 200px */
-            height: 200px; /* Tamaño solicitado de 200px */
-            border-radius: 50%;
-            object-fit: cover;
-            background-color: white;
-            border: 3px solid #FDFBF7;
-            display: inline-block;
-        }
-        
-        /* Botón de Carrito Flotante Fijo (Estilo profesional en la esquina inferior derecha) */
-        .cart-floating-btn {
-            position: fixed;
-            right: 2rem;
-            bottom: 2rem;
-            background: #4A7C59; /* Verde Espinaca */
-            color: white;
-            border: none;
-            padding: 1rem 1.5rem;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1.1rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 999;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: transform 0.2s;
-        }
-        .cart-floating-btn:hover {
-            transform: scale(1.05);
-        }
-        .cart-floating-btn span {
-            background: #E27396; /* Rosa Remolacha para la cantidad */
-            padding: 0.2rem 0.6rem;
-            border-radius: 50%;
-            font-size: 0.9rem;
-        }
-
+        body { font-family: 'Montserrat', sans-serif; background-color: #FDFBF7; color: #1C1C1C; margin: 0; padding: 0; }
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
-        
-        /* Tarjetas de Pastas */
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; border: 1px solid #EAEAEA; }
+        h2 { border-bottom: 2px solid #F5F5F5; padding-bottom: 1rem; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #EAEAEA; overflow: hidden; display: flex; flex-direction: column; }
         .card img { width: 100%; height: 200px; object-fit: cover; }
-        .card-content { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
-        .categoria { font-size: 0.8rem; text-transform: uppercase; color: #4A7C59; font-weight: bold; margin-bottom: 0.5rem; }
-        .card h3 { margin: 0 0 0.5rem 0; font-size: 1.2rem; }
-        .precio { font-size: 1.3rem; font-weight: bold; color: #1C1C1C; margin: 0.5rem 0; }
-        .badge { background-color: #E27396; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.8rem; align-self: flex-start; margin-bottom: 1rem; }
-
-        /* Contadores numéricos */
-        .contador-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-            margin: 1rem 0;
-            background: #F5F5F5;
-            border-radius: 8px;
-            padding: 0.4rem;
-        }
-        .btn-qty {
-            background: white;
-            border: 1px solid #CCCCCC;
-            width: 36px;
-            height: 36px;
-            border-radius: 6px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            user-select: none;
-        }
-        .btn-qty:hover { background: #EAEAEA; }
-        .qty-input { font-size: 1.2rem; font-weight: bold; width: 35px; text-align: center; display: inline-block; }
-
-        .btn-add { background-color: #4A7C59; color: white; text-align: center; padding: 0.75rem; border-radius: 6px; border: none; font-weight: bold; width: 100%; cursor: pointer; transition: background 0.2s; font-size: 0.95rem; }
+        .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
+        .categoria { font-size: 0.8rem; text-transform: uppercase; color: #777; font-weight: bold; }
+        .card-content h3 { margin: 0.5rem 0; font-size: 1.3rem; }
+        .card-content p { font-size: 0.9rem; color: #555; flex-grow: 1; }
+        .precio { font-size: 1.4rem; font-weight: bold; color: #1C1C1C; margin: 1rem 0; }
+        .contador-container { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+        .btn-qty { background: #EAEAEA; border: none; padding: 0.5rem 1rem; font-weight: bold; border-radius: 4px; cursor: pointer; }
+        .qty-input { font-weight: bold; font-size: 1.1rem; }
+        .btn-add { background-color: #4A7C59; color: white; border: none; padding: 0.8rem; width: 100%; border-radius: 6px; font-weight: bold; cursor: pointer; transition: background 0.2s; }
         .btn-add:hover { background-color: #385E3B; }
-        .btn-disabled { background-color: #CCCCCC; color: #777777; cursor: not-allowed; }
-
-        /* Menú Lateral del Carrito (Sidebar) */
-                /* Menú Lateral del Carrito (Sidebar) Ajustado */
-        .sidebar-cart {
-            position: fixed;
-            right: -350px;
-            top: 0;
-            width: 310px;
-            height: 100%;
-            background: white;
-            box-shadow: -5px 0 25px rgba(0,0,0,0.15);
-            z-index: 1000;
-            transition: right 0.3s ease;
-            padding: 1.5rem; /* Achicamos un poco el padding */
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box; /* Asegura que el padding no estire la caja */
-        }
+        .btn-disabled { background-color: #CCCCCC; cursor: not-allowed; }
+        .badge { background: #CC4444; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; align-self: flex-start; }
+        .cart-floating-btn { position: fixed; bottom: 2rem; right: 2rem; background: #1C1C1C; color: white; border: none; padding: 1rem 1.5rem; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999; }
+        .whatsapp-floating-btn { position: fixed; bottom: 2rem; left: 2rem; background: #25D366; color: white; padding: 1rem 1.5rem; border-radius: 30px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999; }
+        .sidebar-cart { position: fixed; top: 0; right: -350px; width: 350px; height: 100%; background: white; box-shadow: -4px 0 20px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 1000; display: flex; flex-direction: column; }
         .sidebar-cart.active { right: 0; }
-        .sidebar-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #F5F5F5; padding-bottom: 1rem; margin-bottom: 1rem; flex-shrink: 0; }
-        .sidebar-header h2 { margin: 0; font-size: 1.4rem; }
-        .btn-close-cart { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #777777; }
-        
-        /* Lista con scroll independiente para que nunca empuje el botón hacia afuera */
-        .cart-items-list { 
-            flex-grow: 1; 
-            overflow-y: auto; 
-            list-style: none; 
-            padding: 0; 
-            margin: 0 0 1rem 0; 
-        }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid #F0F0F0; font-size: 0.9rem; }
-        .cart-item-remove { color: #E27396; border: none; background: none; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
-        
-        /* Caja rígida fijada al fondo del panel lateral */
-        .cart-total-section { 
-            border-top: 2px solid #F5F5F5; 
-            padding-top: 1rem; 
-            background: white;
-            flex-shrink: 0; /* Evita que el bloque se comprima o desaparezca */
-            margin-top: auto;
-        }
-        .total-row { display: flex; justify-content: space-between; font-size: 1.2rem; font-weight: bold; margin-bottom: 1.5rem; }
-        .btn-checkout { background-color: #1C1C1C; color: white; border: none; padding: 1rem; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; text-align: center; text-decoration: none; display: block; box-sizing: border-box; }
-        .btn-checkout:hover { background-color: #333333; }
-
+        .sidebar-header { padding: 1.5rem; border-bottom: 1px solid #EAEAEA; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-header h2 { margin: 0; border: none; padding: 0; font-size: 1.5rem; }
+        .btn-close-cart { background: none; border: none; font-size: 2rem; cursor: pointer; }
+        .cart-items-list { list-style: none; padding: 1.5rem; margin: 0; flex-grow: 1; overflow-y: auto; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #FAFAFA; padding-bottom: 0.5rem; }
+        .cart-item-remove { background: none; border: none; color: #CC4444; font-size: 1.2rem; cursor: pointer; }
+        .cart-total-section { padding: 1.5rem; border-top: 1px solid #EAEAEA; background: #FAFAFA; }
+        .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 1rem; }
+        .btn-checkout { background-color: #1C1C1C; color: white; border: none; padding: 1rem; width: 100%; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <header>
-        <img src="{% static 'imagenes/logo.png' %}" alt="Logo Pastas a Colores" class="logo-img">
-    </header>
-
-    <!-- Botón de Carrito Flotante Fijo abajo a la derecha -->
     <button class="cart-floating-btn" onclick="toggleCart()">
         🛒 Mi Pedido <span id="cart-count">0</span>
     </button>
 
-    <!-- Panel Lateral del Carrito Desplegable -->
+    <a href="https://whatsapp.com" class="whatsapp-floating-btn" target="_blank">
+        💬 ¿Dudas? Escribinos
+    </a>
+
     <div id="sidebar-cart" class="sidebar-cart">
         <div class="sidebar-header">
             <h2>Tu Pedido</h2>
             <button class="btn-close-cart" onclick="toggleCart()">×</button>
         </div>
-        <ul id="cart-items-list" class="cart-items-list">
-            <!-- Los productos se inyectan dinámicamente -->
-        </ul>
+        <ul id="cart-items-list" class="cart-items-list"></ul>
         <div class="cart-total-section">
             <div class="total-row">
                 <span>Total:</span>
-                <span id="cart-total-amount">$0</span>
+                <span id="cart-total-amount">\$0</span>
             </div>
-                       <button class="btn-checkout" onclick="window.location.href='/checkout/'">Iniciar Compra</button>
-
+            <button class="btn-checkout" onclick="window.location.href='/checkout/'">Iniciar Compra</button>
         </div>
     </div>
 
@@ -195,7 +79,6 @@
                     <div class="precio">${{ producto.precio }}</div>
                     
                     {% if producto.stock > 0 %}
-                        <!-- Contadores cuantitativos individuales -->
                         <div class="contador-container">
                             <button class="btn-qty" onclick="changeQty('{{ producto.id }}', -1)">-</button>
                             <span class="qty-input" id="qty-{{ producto.id }}">1</span>
@@ -209,37 +92,30 @@
                 </div>
             </div>
             {% empty %}
-            <p>Todavía no hay pastas cargadas en el menú. ¡Entrá al /admin para sumar las primeras!</p>
+            <p>Todavía no hay pastas cargadas.</p>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Lógica de control corregida y blindada -->
-        <!-- Lógica de control corregida, blindada y testeada para Django -->
     <script>
         let cart = [];
 
-        // Forzamos la apertura y cierre del carrito buscando el ID exacto del panel
         function toggleCart() {
             const sidebar = document.getElementById('sidebar-cart');
-            if (sidebar) {
-                sidebar.classList.toggle('active');
-            }
+            if (sidebar) sidebar.classList.toggle('active');
         }
 
-        // Corregimos la lectura del ID convirtiéndolo explícitamente a texto seguro
         function changeQty(productId, change) {
             const idString = String(productId);
             const qtyElement = document.getElementById('qty-' + idString);
             if (qtyElement) {
                 let currentQty = parseInt(qtyElement.innerText) || 1;
                 currentQty += change;
-                if (currentQty < 1) currentQty = 1; // Evitamos cantidades menores a 1
+                if (currentQty < 1) currentQty = 1;
                 qtyElement.innerText = currentQty;
             }
         }
 
-        // Lógica de inyección limpia para el listado del pedido
         function addToCart(productId, name, price) {
             const idString = String(productId);
             const qtyElement = document.getElementById('qty-' + idString);
@@ -255,9 +131,7 @@
                 cart.push({ id: idString, name: name, price: itemPrice, qty: qty });
             }
 
-            // Reseteamos el contador visual de la tarjeta a 1 para la próxima vuelta
             qtyElement.innerText = "1";
-            
             updateCartUI();
         }
 
@@ -267,7 +141,6 @@
             updateCartUI();
         }
 
-        // Renderizado del menú lateral con cálculo de dinero real
         function updateCartUI() {
             const listElement = document.getElementById('cart-items-list');
             const countElement = document.getElementById('cart-count');
@@ -300,5 +173,9 @@
 
             countElement.innerText = totalCount;
             totalElement.innerText = '\$' + totalAmount;
+
+            localStorage.setItem('total_carrito', totalAmount);
         }
     </script>
+</body>
+</html>

@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from .models import Producto
 import mercadopago
+import urllib.parse
 
-# Tu Access Token original de Información General con los guiones corregidos
-sdk = mercadopago.SDK("APP-USR-1183847139670830-101510-7954a1bf55e5c9f52f36f6aa2e70e9f4-3689791640")
+# Token unificado 
+sdk = mercadopago.SDK("APP_USR-3297171459987328-101611-ee33ac5e4ae7360be04f6b1161d1a8cb-3686889775")
 
 def home(request):
     productos = Producto.objects.all()
@@ -13,57 +14,78 @@ def home(request):
 def checkout(request):
     if request.method == 'POST':
         # 1. Capturamos los datos del formulario de Malargüe
-        nombre_recibe = request.POST.get('nombre')
-        telefono_contacto = request.POST.get('telefono')
-        calle_altura = request.POST.get('domicilio')
-        entre_calles = request.POST.get('entrecalles')
-        rango_horario = request.POST.get('horario')
+        nombre = request.POST.get('nombre')
+        telefono = request.POST.get('telefono')
+        domicilio = request.POST.get('domicilio')
+        entrecalles = request.POST.get('entrecalles')
+        horario = request.POST.get('horario')
         
-        # 2. Preparamos el mensaje de WhatsApp de respaldo por si falla la API
-        mensaje_whatsapp = f"Hola Pastas a Colores! Nuevo pedido de {nombre_recibe}. Entregar en {calle_altura} (Entre calles: {entre_calles}) en el rango de la {rango_horario}. Teléfono: {telefono_contacto}."
-        telefono_negocio = "5492604507091" 
-        url_whatsapp_respaldo = f"https://wa.me{telefono_negocio}?text={mensaje_whatsapp.replace(' ', '%20')}"
+        # Tomamos el valor del carrito dinámico que envía el HTML
+        total_carrito = request.POST.get('total_final_input', '0')
         
-        # 3. Estructura de datos para procesar la orden en Mercado Pago
+        try:
+            precio_final = float(total_carrito)
+        except ValueError:
+            precio_final = 30000.00 # Respaldo por si falla la conversión
+        
+        # Guardamos en la sesión para el mensaje final de WhatsApp
+        request.session['datos_pedido'] = {
+            'nombre': nombre,
+            'telefono': telefono,
+            'domicilio': domicilio,
+            'entrecalles': entrecalles,
+            'horario': horario,
+            'total': precio_final
+        }
+        
+                # 2. Preferencia con el monto real y las URLs de retorno activas
         preference_data = {
             "items": [
                 {
-                    "title": "Pedido - Pastas a Colores",
+                    "title": "Pedido de Pastas a Colores",
                     "quantity": 1,
-                    "unit_price": 1500,
+                    "unit_price": precio_final,
                     "currency_id": "ARS"
                 }
             ],
-            "payer": {
-                "name": nombre_recibe,
-                "email": "comprador_prueba@testuser.com", # Email ficticio obligatorio para no chocar con tu cuenta real
-                "phone": {
-                    "area_code": "260",
-                    "number": telefono_contacto[-7:] if telefono_contacto else "1234567"
-                }
-            },
+            # 🛠️ AGREGAMOS ESTO DE VUELTA:
             "back_urls": {
-                "success": "http://localhost:8000/",
-                "failure": "http://localhost:8000/",
-                "pending": "http://localhost:8000/"
+                "success": "http://127.0.0",
+                "failure": "http://127.0.0",
+                "pending": "http://127.0.0"
             }
         }
 
-        # 4. Intentamos conectar con Mercado Pago
+
         try:
             preference_response = sdk.preference().create(preference_data)
             status_code = preference_response["status"]
             preference = preference_response["response"]
             
-            # Si el token general responde bien, saltamos directo a la pasarela azul
+            # Al darnos el alta, nos vamos directo a Mercado Pago
             if status_code == 201 and "init_point" in preference:
                 return redirect(preference["init_point"])
             else:
-                # Si Mercado Pago tira error de políticas por estar logueada, te manda al WhatsApp directo para no frenar
-                return redirect(url_whatsapp_respaldo)
+                return HttpResponse(f"<h3>Error de Mercado Pago</h3><p>Status: {status_code}</p><p>Detalle: {preference}</p>")
                 
-        except Exception:
-            # Ante cualquier caída de internet o de los servidores de MP, el plan de respaldo de WhatsApp se activa solo
-            return redirect(url_whatsapp_respaldo)
+        except Exception as e:
+            return HttpResponse(f"<h3>Excepción técnica en backend</h3><p>{e}</p>")
         
     return render(request, 'checkout.html')
+
+def pedido_exitoso(request):
+    datos = request.session.get('datos_pedido', {})
+    nombre = datos.get('nombre', 'Cliente')
+    telefono = datos.get('telefono', '-')
+    domicilio = datos.get('domicilio', '-')
+    entrecalles = datos.get('entrecalles', '-')
+    horario = datos.get('horario', '-')
+    total = datos.get('total', '0')
+    
+    mensaje = f"Hola Pastas a Colores! Ya realicé mi pago de ${total}. Mi nombre es {nombre}. Solicito la entrega en {domicilio} (Entre calles: {entrecalles}) en el rango de la {horario}. Mi teléfono es: {telefono}."
+    telefono_negocio = "5492604507091"
+    
+    mensaje_url = urllib.parse.quote(mensaje)
+    url_whatsapp = f"https://whatsapp.com{telefono_negocio}&text={mensaje_url}"
+    
+    return render(request, 'exito.html', {'url_whatsapp': url_whatsapp})

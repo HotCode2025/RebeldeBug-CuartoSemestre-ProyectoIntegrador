@@ -6,120 +6,58 @@
     <title>Datos de Entrega | Pastas a Colores</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #FDFBF7; /* Blanco Crema Orgánico */
-            color: #1C1C1C; /* Negro Carbón */
-            margin: 0; padding: 0;
-        }
-        .container {
-            max-width: 600px;
-            margin: 3rem auto;
-            background: white;
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border: 1px solid #EAEAEA;
-            box-sizing: border-box;
-        }
+        body { font-family: 'Montserrat', sans-serif; background-color: #FDFBF7; color: #1C1C1C; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 3rem auto; background: white; padding: 2.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #EAEAEA; box-sizing: border-box; }
         h2 { margin-top: 0; font-size: 1.8rem; border-bottom: 2px solid #F5F5F5; padding-bottom: 1rem; }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-            display: flex;
-            flex-direction: column;
-        }
-        label {
-            font-weight: bold;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-        }
-        input, select {
-            font-family: 'Montserrat', sans-serif;
-            padding: 0.8rem;
-            font-size: 1rem;
-            border: 1px solid #CCCCCC;
-            border-radius: 6px;
-            background-color: #FAFAFA;
-            box-sizing: border-box;
-        }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #4A7C59; /* Verde Espinaca */
-            background-color: white;
-        }
-        
-        .row-doble {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-        
-        .btn-submit {
-            background-color: #4A7C59; /* Verde Espinaca */
-            color: white;
-            border: none;
-            padding: 1rem;
-            width: 100%;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 1rem;
-            transition: background 0.2s;
-        }
+        .form-group { margin-bottom: 1.5rem; display: flex; flex-direction: column; }
+        label { font-weight: bold; font-size: 0.9rem; margin-bottom: 0.5rem; }
+        input, select { font-family: 'Montserrat', sans-serif; padding: 0.8rem; font-size: 1rem; border: 1px solid #CCCCCC; border-radius: 6px; background-color: #FAFAFA; box-sizing: border-box; }
+        input:focus, select:focus { outline: none; border-color: #4A7C59; background-color: white; }
+        .btn-submit { background-color: #4A7C59; color: white; border: none; padding: 1rem; width: 100%; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin-top: 1rem; transition: background 0.2s; }
         .btn-submit:hover { background-color: #385E3B; }
-        .btn-back {
-            display: block;
-            text-align: center;
-            color: #777777;
-            text-decoration: none;
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-        }
+        .btn-back { display: block; text-align: center; color: #777777; text-decoration: none; margin-top: 1.5rem; font-size: 0.9rem; }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h2>Datos para el Envío</h2>
-        <form action="#" method="POST">
-            {% csrf_token %} <!-- Protección de seguridad obligatoria de Django -->
-            
+        <form id="form-envio" action="" method="POST">
+            {% csrf_token %}
+            <input type="hidden" id="total_final_input" name="total_final_input" value="0">
             <div class="form-group">
                 <label for="nombre">Nombre de quien recibe</label>
                 <input type="text" id="nombre" name="nombre" placeholder="Ej: Melina Menu" required>
             </div>
-
             <div class="form-group">
                 <label for="telefono">Teléfono de contacto</label>
                 <input type="tel" id="telefono" name="telefono" placeholder="Ej: 2604XXXXXX" required>
             </div>
-
             <div class="form-group">
                 <label for="domicilio">Domicilio (Calle y Altura)</label>
                 <input type="text" id="domicilio" name="domicilio" placeholder="Ej: Av. San Martín 150" required>
             </div>
-
             <div class="form-group">
                 <label for="entrecalles">Entre calles</label>
                 <input type="text" id="entrecalles" name="entrecalles" placeholder="Ej: Entre Villegas y J. Corvalán" required>
             </div>
-
             <div class="form-group">
                 <label for="horario">Rango Horario de Entrega</label>
                 <select id="horario" name="horario" required>
                     <option value="" disabled selected>Seleccioná un rango horario</option>
-                    <option value="manana">Mañana: 11:00 a 14:00 hrs</option>
-                    <option value="tarde">Tarde: 19:00 a 21:00 hrs</option>
+                    <option value="Mañana (11:00 a 14:00 hrs)">Mañana: 11:00 a 14:00 hrs</option>
+                    <option value="Tarde (19:00 a 21:00 hrs)">Tarde: 19:00 a 21:00 hrs</option>
                 </select>
             </div>
-
             <button type="submit" class="btn-submit">Proceder al Pago con Mercado Pago</button>
         </form>
-        
         <a href="{% url 'home' %}" class="btn-back">← Volver a la tienda</a>
     </div>
-
+    <script>
+        document.getElementById('form-envio').addEventListener('submit', function(e) {
+            let totalMemory = localStorage.getItem('total_carrito') || '0';
+            totalMemory = totalMemory.replace('$', '').trim();
+            document.getElementById('total_final_input').value = totalMemory;
+        });
+    </script>
 </body>
 </html>
