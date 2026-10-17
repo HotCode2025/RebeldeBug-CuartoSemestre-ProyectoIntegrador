@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -37,17 +39,82 @@
         .cart-total-section { padding: 1.5rem; border-top: 1px solid #EAEAEA; background: #FAFAFA; }
         .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 1rem; }
         .btn-checkout { background-color: #1C1C1C; color: white; border: none; padding: 1rem; width: 100%; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        /* Rectángulo negro que ocupa todo el encabezado de la web */
+/* Rectángulo negro que ocupa todo el encabezado de la web */
+.main-header {
+    background-color: #1C1C1C; /* Negro carbón de tu paleta */
+    width: 100%;
+    padding: 2rem 0; /* Un poco más ancho verticalmente para dar aire */
+    display: flex;
+    justify-content: center; /* Centra el logo horizontalmente */
+    align-items: center; /* Centra el logo verticalmente */
+    margin: 0;
+}
+
+/* Contenedor del logo con un tamaño más grande */
+.logo-container img {
+    width: 250px; /* Incrementamos de 180px a 250px como pediste */
+    height: auto;
+    display: block;
+    border-radius: 50%; /* Conserva el diseño circular si tu logo lo es */
+}
+
+
+        <!-- 1. TODO EL BLOQUE CSS DEBE QUEDAR ANTES DE </style> -->
+    <style>
+        /* ... Todos tus estilos anteriores (.container, .grid, .card, etc.) quedan acá ... */
+
+      body { 
+    font-family: 'Montserrat', sans-serif; 
+    background-image: url("{% static 'imagenes/Mantel.PNG' %}"); 
+    background-size: 240px; 
+    background-repeat: repeat; 
+    background-color: rgba(0, 0, 0, 0.3); /* Velo negro al 60% */
+    background-blend-mode: multiply; /* Multiplica los tonos logrando un cuadriculado gris topo hermoso */
+    color: #1C1C1C; 
+    margin: 0; 
+    padding: 0; 
+}
+
+
+
+        .main-header {
+            background-color: #1C1C1C; 
+            width: 100%;
+            padding: 2rem 0; 
+            display: flex;
+            justify-content: center; 
+            align-items: center; 
+            margin: 0;
+        }
+
+        .logo-container img {
+            width: 250px; 
+            height: auto;
+            display: block;
+            border-radius: 50%; 
+        }
     </style>
 </head>
 <body>
+
+    <!-- 2. EL ENCABEZADO NEGRO CORRECTO JUSTO AL INCIAR EL BODY -->
+    <header class="main-header">
+        <div class="logo-container">
+            <img src="{% static 'imagenes/Logo.PNG' %}" alt="Logo Pastas a Colores">
+        </div>
+    </header>
 
     <button class="cart-floating-btn" onclick="toggleCart()">
         🛒 Mi Pedido <span id="cart-count">0</span>
     </button>
 
-    <a href="https://whatsapp.com" class="whatsapp-floating-btn" target="_blank">
-        💬 ¿Dudas? Escribinos
-    </a>
+     <!-- Botón Flotante de WhatsApp Seguro -->
+<a href="https://wa.me/542604507091" class="whatsapp-floating-btn" target="_blank" rel="noopener noreferrer">
+    💬 ¿Dudas? Escribinos
+</a>
+
+
 
     <div id="sidebar-cart" class="sidebar-cart">
         <div class="sidebar-header">
@@ -64,8 +131,8 @@
         </div>
     </div>
 
+    <!-- 3. EL CONTENEDOR DE PRODUCTOS EMPIEZA DIRECTAMENTE SIN EL TÍTULO VIEJO -->
     <div class="container">
-        <h2>Nuestro Menú de Pastas</h2>
         <div class="grid">
             {% for producto in productos %}
             <div class="card">
