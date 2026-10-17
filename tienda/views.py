@@ -80,12 +80,13 @@ def checkout(request):
                     "currency_id": "ARS"
                 }
             ],
-            "back_urls": {
+                        "back_urls": {
                 "success": "http://127.0.0",
                 "failure": "http://127.0.0",
                 "pending": "http://127.0.0"
-            },
+            }, 
             "auto_return": "approved"
+
         }
 
         try:
