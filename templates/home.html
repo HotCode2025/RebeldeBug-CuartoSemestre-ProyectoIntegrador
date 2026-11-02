@@ -1,24 +1,6 @@
 {% load static %}
 
-<!DOCTYPE html> 
-<!-- CONTRIBUTOR CHECK - UI/UX & QA TESTING: Micaela Aramayo -->
-<!-- Pruebas de usabilidad del menú lateral (sidebar-cart) aprobadas. Validación de paleta y contraste
-     para Mantel.PNG y Logo.PNG completada. -->
-
-<!--
-Para garantizar la consistencia de los precios y evitar la manipulación de montos desde la consola
-del navegador, el sistema prioriza el vaciado de estados temporales tras una mutación de sesión (Login).
-
-Si un usuario anónimo añade productos y decide iniciar sesión a mitad del checkout, el sistema
-restablece el flujo comercial requiriendo que valide su pedido bajo su perfil autenticado,
-garantizando que el stock histórico de su cuenta sea el que impacte en la pasarela de Mercado Pago.
-
-En esta primera fase del MVP, el carrito se gestiona del lado del cliente a través de LocalStorage.
-Decidimos de forma intencional que el inicio de sesión refresque el flujo para asegurar que se
-impacten correctamente las credenciales del usuario autenticado en la base de datos de Django,
-priorizando la seguridad y consistencia del pedido antes de enviarlo a la API de Mercado Pago.
-La persistencia unificada del carrito inter-sesiones queda agendada para la Fase 2 del desarrollo.
--->
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -26,10 +8,26 @@ La persistencia unificada del carrito inter-sesiones queda agendada para la Fase
     <title>Pastas a Colores | Sabor y Arte</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        body { font-family: 'Montserrat', sans-serif; background-color: #FDFBF7; color: #1C1C1C; margin: 0; padding: 0; }
+        /* Estilos Base y Fondo de Mantel */
+      body {
+    font-family: 'Montserrat', sans-serif;
+    background-image: url("/static/imagenes/Mantel.PNG");
+    background-size: 240px;
+    background-repeat: repeat;
+    background-color: rgba(0, 0, 0, 0.3);
+    background-blend-mode: multiply;
+    color: #1C1C1C;
+    margin: 0;
+    padding: 0;
+}
+
+
+        /* Estructura de la Tienda */
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         h2 { border-bottom: 2px solid #F5F5F5; padding-bottom: 1rem; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
+
+        /* Tarjetas de Productos */
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #EAEAEA; overflow: hidden; display: flex; flex-direction: column; }
         .card img { width: 100%; height: 200px; object-fit: cover; }
         .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
@@ -37,6 +35,8 @@ La persistencia unificada del carrito inter-sesiones queda agendada para la Fase
         .card-content h3 { margin: 0.5rem 0; font-size: 1.3rem; }
         .card-content p { font-size: 0.9rem; color: #555; flex-grow: 1; }
         .precio { font-size: 1.4rem; font-weight: bold; color: #1C1C1C; margin: 1rem 0; }
+
+        /* Contadores y Botones */
         .contador-container { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
         .btn-qty { background: #EAEAEA; border: none; padding: 0.5rem 1rem; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .qty-input { font-weight: bold; font-size: 1.1rem; }
@@ -44,8 +44,12 @@ La persistencia unificada del carrito inter-sesiones queda agendada para la Fase
         .btn-add:hover { background-color: #385E3B; }
         .btn-disabled { background-color: #CCCCCC; cursor: not-allowed; }
         .badge { background: #CC4444; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; align-self: flex-start; }
+
+        /* Botones Flotantes */
         .cart-floating-btn { position: fixed; bottom: 2rem; right: 2rem; background: #1C1C1C; color: white; border: none; padding: 1rem 1.5rem; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999; }
         .whatsapp-floating-btn { position: fixed; bottom: 2rem; left: 2rem; background: #25D366; color: white; padding: 1rem 1.5rem; border-radius: 30px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999; }
+
+        /* Carrito Lateral */
         .sidebar-cart { position: fixed; top: 0; right: -350px; width: 350px; height: 100%; background: white; box-shadow: -4px 0 20px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 1000; display: flex; flex-direction: column; }
         .sidebar-cart.active { right: 0; }
         .sidebar-header { padding: 1.5rem; border-bottom: 1px solid #EAEAEA; display: flex; justify-content: space-between; align-items: center; }
@@ -57,62 +61,27 @@ La persistencia unificada del carrito inter-sesiones queda agendada para la Fase
         .cart-total-section { padding: 1.5rem; border-top: 1px solid #EAEAEA; background: #FAFAFA; }
         .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 1rem; }
         .btn-checkout { background-color: #1C1C1C; color: white; border: none; padding: 1rem; width: 100%; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-     
-.main-header {
-    background-color: #1C1C1C; /* Negro carbón de tu paleta */
-    width: 100%;
-    padding: 2rem 0; /* Un poco más ancho verticalmente para dar aire */
-    display: flex;
-    justify-content: center; /* Centra el logo horizontalmente */
-    align-items: center; /* Centra el logo verticalmente */
-    margin: 0;
-}
 
-/* Contenedor del logo con un tamaño más grande */
-.logo-container img {
-    width: 250px; /* Incrementamos de 180px a 250px como pediste */
-    height: auto;
-    display: block;
-    border-radius: 50%; /* Conserva el diseño circular si tu logo lo es */
-}
-
-
-        <!--  TODO EL BLOQUE CSS DEBE QUEDAR ANTES DE </style> -->
-    <style>
-        /* ... Todos tus estilos anteriores (.container, .grid, .card, etc.) quedan acá ... */
-
-      body { 
-    font-family: 'Montserrat', sans-serif; 
-    background-image: url("{% static 'imagenes/Mantel.PNG' %}"); 
-    background-size: 240px; 
-    background-repeat: repeat; 
-    background-color: rgba(0, 0, 0, 0.3); /* Velo negro al 60% */
-    background-blend-mode: multiply; /* Multiplica los tonos logrando un cuadriculado gris topo hermoso */
-    color: #1C1C1C; 
-    margin: 0; 
-    padding: 0; 
-}
-
-
-
+        /* Encabezado Principal */
         .main-header {
-            background-color: #1C1C1C; 
+            background-color: #1C1C1C;
             width: 100%;
-            padding: 2rem 0; 
+            padding: 2rem 0;
             display: flex;
-            justify-content: center; 
-            align-items: center; 
+            justify-content: center;
+            align-items: center;
             margin: 0;
         }
 
         .logo-container img {
-            width: 250px; 
+            width: 250px;
             height: auto;
             display: block;
-            border-radius: 50%; 
+            border-radius: 50%;
         }
     </style>
 </head>
+
 <body>
 
     <!-- 2. EL ENCABEZADO NEGRO CORRECTO JUSTO AL INCIAR EL BODY -->
@@ -161,7 +130,7 @@ La persistencia unificada del carrito inter-sesiones queda agendada para la Fase
                     <h3>{{ producto.nombre }}</h3>
                     <p>{{ producto.descripcion }}</p>
                     <div class="precio">${{ producto.precio }}</div>
-                    
+
                     {% if producto.stock > 0 %}
                         <div class="contador-container">
                             <button class="btn-qty" onclick="changeQty('{{ producto.id }}', -1)">-</button>
@@ -204,7 +173,7 @@ La persistencia unificada del carrito inter-sesiones queda agendada para la Fase
             const idString = String(productId);
             const qtyElement = document.getElementById('qty-' + idString);
             if (!qtyElement) return;
-            
+
             const qty = parseInt(qtyElement.innerText) || 1;
             const itemPrice = parseFloat(price);
 
@@ -229,7 +198,7 @@ La persistencia unificada del carrito inter-sesiones queda agendada para la Fase
             const listElement = document.getElementById('cart-items-list');
             const countElement = document.getElementById('cart-count');
             const totalElement = document.getElementById('cart-total-amount');
-            
+
             if (!listElement || !countElement || !totalElement) return;
 
             listElement.innerHTML = '';

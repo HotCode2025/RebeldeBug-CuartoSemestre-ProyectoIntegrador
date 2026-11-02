@@ -18,37 +18,31 @@ def checkout(request):
         # 1. Capturamos los datos de autenticación y envío desde el formulario
         telefono_usuario = request.POST.get('telefono_usuario')
         password = request.POST.get('password')
-        
+
         nombre = request.POST.get('nombre')
         domicilio = request.POST.get('domicilio')
         entrecalles = request.POST.get('entrecalles')
         horario = request.POST.get('horario')
-        
+
         # Evaluamos el comportamiento basándonos en si los campos de envío vienen llenos o no
-        # Si 'nombre' es None o vacío, significa que el usuario tocó "Iniciar Sesión"
-        es_login_puro = not nombre 
+        es_login_puro = not nombre
 
         if es_login_puro:
             # 🔐 FLUJO: EL CLIENTE YA TIENE CUENTA E INICIA SESIÓN
             user = authenticate(request, username=telefono_usuario, password=password)
             if user is not None:
                 login(request, user)
-                # Al loguearse con éxito, lo redirigimos de nuevo al checkout para que 
-                # ahora vea los campos de entrega (o podés mandarlo directo a Mercado Pago si autocompletás)
                 return redirect('/checkout/')
             else:
                 return HttpResponse("<h3>Error de Autenticación</h3><p>El teléfono o la contraseña son incorrectos.</p><p><a href='/checkout/'>Volver a intentar</a></p>")
-        
+
         else:
             # 📝 FLUJO: CLIENTE NUEVO (REGISTRO SILENCIOSO + COMPRA)
-            # Verificamos si el usuario ya existe para evitar errores por duplicado
             if not User.objects.filter(username=telefono_usuario).exists():
                 user = User.objects.create_user(username=telefono_usuario, password=password)
-                # Opcional: guardamos su nombre real en el modelo de Django
                 user.first_name = nombre
                 user.save()
-            
-            # Logueamos automáticamente al nuevo usuario en la sesión del servidor
+
             user = authenticate(request, username=telefono_usuario, password=password)
             if user is not None:
                 login(request, user)
@@ -59,7 +53,7 @@ def checkout(request):
             precio_final = float(total_carrito)
         except ValueError:
             precio_final = 30000.00  # Respaldo por si falla la conversión
-        
+
         # Guardamos la orden temporal en la sesión para la confirmación posterior por WhatsApp
         request.session['datos_pedido'] = {
             'nombre': nombre if nombre else request.user.first_name,
@@ -69,8 +63,9 @@ def checkout(request):
             'horario': horario,
             'total': precio_final
         }
-        
-        # 3. Preferencia con las URLs de retorno activas hacia tu entorno local
+
+        # 3. Preferencia corregida con indentación perfecta y tus URLs de producción
+                # 3. Preferencia corregida con guiones medios en las URLs
         preference_data = {
             "items": [
                 {
@@ -80,28 +75,28 @@ def checkout(request):
                     "currency_id": "ARS"
                 }
             ],
-                        "back_urls": {
-                "success": "http://127.0.0",
-                "failure": "http://127.0.0",
-                "pending": "http://127.0.0"
-            }, 
-            "auto_return": "approved"
-
+            "back_urls": {
+                "success": "https://pythonanywhere.com", # <-- Cambiado _ por -
+                "failure": "https://pythonanywhere.com",
+                "pending": "https://pythonanywhere.com"
+            },
+            "auto_return": "all",
         }
+
 
         try:
             preference_response = sdk.preference().create(preference_data)
             status_code = preference_response["status"]
             preference = preference_response["response"]
-            
+
             if status_code == 201 and "init_point" in preference:
                 return redirect(preference["init_point"])
             else:
                 return HttpResponse(f"<h3>Error de Mercado Pago</h3><p>Status: {status_code}</p>")
-                
+
         except Exception as e:
             return HttpResponse(f"<h3>Excepción técnica en backend</h3><p>{e}</p>")
-        
+
     return render(request, 'checkout.html')
 
 def pedido_exitoso(request):
@@ -112,12 +107,13 @@ def pedido_exitoso(request):
     entrecalles = datos.get('entrecalles', '-')
     horario = datos.get('horario', '-')
     total = datos.get('total', '0')
-    
+
     mensaje = f"¡Hola Pastas a Colores! Ya realicé mi pago de ${total}. Mi nombre es {nombre}. Solicito la entrega en {domicilio} (Entre calles: {entrecalles}) en el rango de la {horario}. Mi teléfono es: {telefono}."
     telefono_negocio = "5492604507091"
-    
+
     mensaje_url = urllib.parse.quote(mensaje)
-    # 🛠️ CORRECCIÓN: Ajustamos la sintaxis oficial de la API de WhatsApp para el retorno post-pago
-    url_whatsapp = f"https://whatsapp.com{telefono_negocio}&text={mensaje_url}"
-    
+    # Ajustamos la sintaxis oficial de la API de WhatsApp para abrir el chat correctamente
+    url_whatsapp = f"https://wa.me/{telefono_negocio}?text={mensaje_url}"
+
     return render(request, 'exito.html', {'url_whatsapp': url_whatsapp})
+

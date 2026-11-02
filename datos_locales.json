@@ -83,7 +83,7 @@
     "model": "tienda.categoria",
     "pk": 3,
     "fields": {
-        "nombre": "ÑOQUIS"
+        "nombre": "Ã‘OQUIS"
     }
 },
 {
@@ -131,11 +131,11 @@
     "pk": 3,
     "fields": {
         "categoria": 3,
-        "nombre": "Clásicos de papa x 1/2KG",
+        "nombre": "ClÃ¡sicos de papa x 1/2KG",
         "descripcion": "1/2 kg rinde 2 porciones.",
         "precio": "5500.00",
         "stock": 10,
-        "imagen": "productos/ÑoquisBlancos.PNG",
+        "imagen": "productos/Ã‘oquisBlancos.PNG",
         "disponible": true
     }
 },
@@ -144,11 +144,11 @@
     "pk": 4,
     "fields": {
         "categoria": 3,
-        "nombre": "Clásicos de papa x KG",
-        "descripcion": "1kg de ñoquis rinde 4 porciones.",
+        "nombre": "ClÃ¡sicos de papa x KG",
+        "descripcion": "1kg de Ã±oquis rinde 4 porciones.",
         "precio": "10000.00",
         "stock": 20,
-        "imagen": "productos/ÑoquisBlancos_InVOJJX.PNG",
+        "imagen": "productos/Ã‘oquisBlancos_InVOJJX.PNG",
         "disponible": true
     }
 },
@@ -161,7 +161,7 @@
         "descripcion": "1/2 kg rinde 2 porciones\r\n\r\nStock asegurado y exclusivo los 29 de cada mes",
         "precio": "5500.00",
         "stock": 10,
-        "imagen": "productos/ÑoquisColores.PNG",
+        "imagen": "productos/Ã‘oquisColores.PNG",
         "disponible": true
     }
 },
@@ -174,7 +174,7 @@
         "descripcion": "El kg rinde 4 porciones.\r\n\r\nStock asegurado y exclusivo los 29 de cada mes.",
         "precio": "10000.00",
         "stock": 20,
-        "imagen": "productos/ÑoquisColores_hqWqkLy.PNG",
+        "imagen": "productos/Ã‘oquisColores_hqWqkLy.PNG",
         "disponible": true
     }
 },
@@ -222,7 +222,7 @@
     "pk": 10,
     "fields": {
         "categoria": 2,
-        "nombre": "Vacío",
+        "nombre": "VacÃ­o",
         "descripcion": "Por docena.",
         "precio": "12000.00",
         "stock": 10,
@@ -318,7 +318,7 @@
             "categoria"
         ],
         "object_id": "3",
-        "object_repr": "ÑOQUIS",
+        "object_repr": "Ã‘OQUIS",
         "action_flag": 1,
         "change_message": "[{\"added\": {}}]"
     }
@@ -426,7 +426,7 @@
             "producto"
         ],
         "object_id": "3",
-        "object_repr": "Ñoquis clásicos de papa ($5500)",
+        "object_repr": "Ã‘oquis clÃ¡sicos de papa ($5500)",
         "action_flag": 1,
         "change_message": "[{\"added\": {}}]"
     }
@@ -444,7 +444,7 @@
             "producto"
         ],
         "object_id": "4",
-        "object_repr": "Ñoquis clásicos de papa x kg ($10000)",
+        "object_repr": "Ã‘oquis clÃ¡sicos de papa x kg ($10000)",
         "action_flag": 1,
         "change_message": "[{\"added\": {}}]"
     }
@@ -462,7 +462,7 @@
             "producto"
         ],
         "object_id": "5",
-        "object_repr": "Ñoquis surtidos de colores ($5500)",
+        "object_repr": "Ã‘oquis surtidos de colores ($5500)",
         "action_flag": 1,
         "change_message": "[{\"added\": {}}]"
     }
@@ -480,7 +480,7 @@
             "producto"
         ],
         "object_id": "6",
-        "object_repr": "Ñoquis surtidos de colores x kg ($10000)",
+        "object_repr": "Ã‘oquis surtidos de colores x kg ($10000)",
         "action_flag": 1,
         "change_message": "[{\"added\": {}}]"
     }
@@ -552,7 +552,7 @@
             "producto"
         ],
         "object_id": "10",
-        "object_repr": "Vacío ($12000)",
+        "object_repr": "VacÃ­o ($12000)",
         "action_flag": 1,
         "change_message": "[{\"added\": {}}]"
     }
@@ -660,7 +660,7 @@
             "producto"
         ],
         "object_id": "4",
-        "object_repr": "Clásicos de papa x KG ($10000.00)",
+        "object_repr": "ClÃ¡sicos de papa x KG ($10000.00)",
         "action_flag": 2,
         "change_message": "[{\"changed\": {\"fields\": [\"Nombre\"]}}]"
     }
@@ -678,7 +678,7 @@
             "producto"
         ],
         "object_id": "3",
-        "object_repr": "Clásicos de papa x 1/2KG ($5500.00)",
+        "object_repr": "ClÃ¡sicos de papa x 1/2KG ($5500.00)",
         "action_flag": 2,
         "change_message": "[{\"changed\": {\"fields\": [\"Nombre\"]}}]"
     }
