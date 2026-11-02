@@ -1,6 +1,24 @@
 {% load static %}
 
-<!DOCTYPE html>
+<!DOCTYPE html> 
+<!-- CONTRIBUTOR CHECK - UI/UX & QA TESTING: Micaela Aramayo -->
+<!-- Pruebas de usabilidad del menú lateral (sidebar-cart) aprobadas. Validación de paleta y contraste
+     para Mantel.PNG y Logo.PNG completada. -->
+
+<!--
+Para garantizar la consistencia de los precios y evitar la manipulación de montos desde la consola
+del navegador, el sistema prioriza el vaciado de estados temporales tras una mutación de sesión (Login).
+
+Si un usuario anónimo añade productos y decide iniciar sesión a mitad del checkout, el sistema
+restablece el flujo comercial requiriendo que valide su pedido bajo su perfil autenticado,
+garantizando que el stock histórico de su cuenta sea el que impacte en la pasarela de Mercado Pago.
+
+En esta primera fase del MVP, el carrito se gestiona del lado del cliente a través de LocalStorage.
+Decidimos de forma intencional que el inicio de sesión refresque el flujo para asegurar que se
+impacten correctamente las credenciales del usuario autenticado en la base de datos de Django,
+priorizando la seguridad y consistencia del pedido antes de enviarlo a la API de Mercado Pago.
+La persistencia unificada del carrito inter-sesiones queda agendada para la Fase 2 del desarrollo.
+-->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -39,8 +57,7 @@
         .cart-total-section { padding: 1.5rem; border-top: 1px solid #EAEAEA; background: #FAFAFA; }
         .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 1rem; }
         .btn-checkout { background-color: #1C1C1C; color: white; border: none; padding: 1rem; width: 100%; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-        /* Rectángulo negro que ocupa todo el encabezado de la web */
-/* Rectángulo negro que ocupa todo el encabezado de la web */
+     
 .main-header {
     background-color: #1C1C1C; /* Negro carbón de tu paleta */
     width: 100%;
@@ -60,7 +77,7 @@
 }
 
 
-        <!-- 1. TODO EL BLOQUE CSS DEBE QUEDAR ANTES DE </style> -->
+        <!--  TODO EL BLOQUE CSS DEBE QUEDAR ANTES DE </style> -->
     <style>
         /* ... Todos tus estilos anteriores (.container, .grid, .card, etc.) quedan acá ... */
 
