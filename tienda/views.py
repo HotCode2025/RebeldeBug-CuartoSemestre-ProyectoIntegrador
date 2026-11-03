@@ -32,7 +32,7 @@ def checkout(request):
             user = authenticate(request, username=telefono_usuario, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('/checkout/')
+                return redirect('/?login=ok')
             else:
                 return HttpResponse("<h3>Error de Autenticación</h3><p>El teléfono o la contraseña son incorrectos.</p><p><a href='/checkout/'>Volver a intentar</a></p>")
 

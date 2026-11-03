@@ -190,13 +190,22 @@
     </div>
 
     <script>
-        // Mantiene lógica original para recuperar el total acumulado de tu carrito
-        document.getElementById('form-envio').addEventListener('submit', function(e) {
-            let totalMemory = localStorage.getItem('total_carrito') || '0';
-            totalMemory = totalMemory.replace('$', '').trim();
-            document.getElementById('total_final_input').value = totalMemory;
-        });
+        // Recupera el total acumulado del carrito
+document.getElementById('form-envio').addEventListener('submit', function(e) {
+    let totalMemory = localStorage.getItem('total_carrito') || '0';
+    totalMemory = totalMemory.replace('$', '').trim();
+    document.getElementById('total_final_input').value = totalMemory;
 
+    // Si el usuario está iniciando sesión, marca la intención de recuperar el carrito
+    const nombre = document.querySelector('[name="nombre"]');
+
+    if (nombre && nombre.value.trim() === '') {
+        sessionStorage.setItem('restaurar_carrito_tras_login', '1');
+    } else {
+        sessionStorage.removeItem('restaurar_carrito_tras_login');
+        sessionStorage.removeItem('carrito_checkout_temporal');
+    }
+});
         // Alternancia visual para cambiar entre Modo Registro y Modo Login sin recargar la web
         function toggleLoginForm(showLogin) {
             const shippingFields = document.getElementById('shipping-fields');

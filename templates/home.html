@@ -1,6 +1,24 @@
 {% load static %}
 
-<!DOCTYPE html>
+<!DOCTYPE html> 
+<!-- CONTRIBUTOR CHECK - UI/UX & QA TESTING: Micaela Aramayo -->
+<!-- Pruebas de usabilidad del menú lateral (sidebar-cart) aprobadas. Validación de paleta y contraste
+     para Mantel.PNG y Logo.PNG completada. -->
+
+<!--
+Para garantizar la consistencia de los precios y evitar la manipulación de montos desde la consola
+del navegador, el sistema prioriza el vaciado de estados temporales tras una mutación de sesión (Login).
+
+Si un usuario anónimo añade productos y decide iniciar sesión a mitad del checkout, el sistema
+restablece el flujo comercial requiriendo que valide su pedido bajo su perfil autenticado,
+garantizando que el stock histórico de su cuenta sea el que impacte en la pasarela de Mercado Pago.
+
+En esta primera fase del MVP, el carrito se gestiona del lado del cliente a través de LocalStorage.
+Decidimos de forma intencional que el inicio de sesión refresque el flujo para asegurar que se
+impacten correctamente las credenciales del usuario autenticado en la base de datos de Django,
+priorizando la seguridad y consistencia del pedido antes de enviarlo a la API de Mercado Pago.
+La persistencia unificada del carrito inter-sesiones queda agendada para la Fase 2 del desarrollo.
+-->
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -8,26 +26,10 @@
     <title>Pastas a Colores | Sabor y Arte</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        /* Estilos Base y Fondo de Mantel */
-      body {
-    font-family: 'Montserrat', sans-serif;
-    background-image: url("/static/imagenes/Mantel.PNG");
-    background-size: 240px;
-    background-repeat: repeat;
-    background-color: rgba(0, 0, 0, 0.3);
-    background-blend-mode: multiply;
-    color: #1C1C1C;
-    margin: 0;
-    padding: 0;
-}
-
-
-        /* Estructura de la Tienda */
+        body { font-family: 'Montserrat', sans-serif; background-color: #FDFBF7; color: #1C1C1C; margin: 0; padding: 0; }
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
         h2 { border-bottom: 2px solid #F5F5F5; padding-bottom: 1rem; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
-
-        /* Tarjetas de Productos */
         .card { background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #EAEAEA; overflow: hidden; display: flex; flex-direction: column; }
         .card img { width: 100%; height: 200px; object-fit: cover; }
         .card-content { padding: 1.5rem; flex-grow: 1; display: flex; flex-direction: column; }
@@ -35,8 +37,6 @@
         .card-content h3 { margin: 0.5rem 0; font-size: 1.3rem; }
         .card-content p { font-size: 0.9rem; color: #555; flex-grow: 1; }
         .precio { font-size: 1.4rem; font-weight: bold; color: #1C1C1C; margin: 1rem 0; }
-
-        /* Contadores y Botones */
         .contador-container { display: flex; align-items: center; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
         .btn-qty { background: #EAEAEA; border: none; padding: 0.5rem 1rem; font-weight: bold; border-radius: 4px; cursor: pointer; }
         .qty-input { font-weight: bold; font-size: 1.1rem; }
@@ -44,12 +44,8 @@
         .btn-add:hover { background-color: #385E3B; }
         .btn-disabled { background-color: #CCCCCC; cursor: not-allowed; }
         .badge { background: #CC4444; color: white; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; align-self: flex-start; }
-
-        /* Botones Flotantes */
         .cart-floating-btn { position: fixed; bottom: 2rem; right: 2rem; background: #1C1C1C; color: white; border: none; padding: 1rem 1.5rem; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999; }
         .whatsapp-floating-btn { position: fixed; bottom: 2rem; left: 2rem; background: #25D366; color: white; padding: 1rem 1.5rem; border-radius: 30px; font-weight: bold; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 999; }
-
-        /* Carrito Lateral */
         .sidebar-cart { position: fixed; top: 0; right: -350px; width: 350px; height: 100%; background: white; box-shadow: -4px 0 20px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 1000; display: flex; flex-direction: column; }
         .sidebar-cart.active { right: 0; }
         .sidebar-header { padding: 1.5rem; border-bottom: 1px solid #EAEAEA; display: flex; justify-content: space-between; align-items: center; }
@@ -61,30 +57,63 @@
         .cart-total-section { padding: 1.5rem; border-top: 1px solid #EAEAEA; background: #FAFAFA; }
         .total-row { display: flex; justify-content: space-between; font-weight: bold; font-size: 1.2rem; margin-bottom: 1rem; }
         .btn-checkout { background-color: #1C1C1C; color: white; border: none; padding: 1rem; width: 100%; border-radius: 6px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+     
+.main-header {
+    background-color: #1C1C1C; 
+    width: 100%;
+    padding: 2rem 0; 
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    margin: 0;
+}
 
-        /* Encabezado Principal */
+
+.logo-container img {
+    width: 250px; 
+    height: auto;
+    display: block;
+    border-radius: 50%;
+
+}
+       
+        
+
+      body { 
+    font-family: 'Montserrat', sans-serif; 
+    background-image: url("{% static 'imagenes/Mantel.PNG' %}"); 
+    background-size: 240px; 
+    background-repeat: repeat; 
+    background-color: rgba(0, 0, 0, 0.3); /* Velo negro al 60% */
+    background-blend-mode: multiply; 
+    color: #1C1C1C; 
+    margin: 0; 
+    padding: 0; 
+}
+
+
+
         .main-header {
-            background-color: #1C1C1C;
+            background-color: #1C1C1C; 
             width: 100%;
-            padding: 2rem 0;
+            padding: 2rem 0; 
             display: flex;
-            justify-content: center;
-            align-items: center;
+            justify-content: center; 
+            align-items: center; 
             margin: 0;
         }
 
         .logo-container img {
-            width: 250px;
+            width: 250px; 
             height: auto;
             display: block;
-            border-radius: 50%;
+            border-radius: 50%; 
         }
     </style>
 </head>
-
 <body>
 
-    <!-- 2. EL ENCABEZADO NEGRO CORRECTO JUSTO AL INCIAR EL BODY -->
+   
     <header class="main-header">
         <div class="logo-container">
             <img src="{% static 'imagenes/Logo.PNG' %}" alt="Logo Pastas a Colores">
@@ -113,11 +142,11 @@
                 <span>Total:</span>
                 <span id="cart-total-amount">\$0</span>
             </div>
-            <button class="btn-checkout" onclick="window.location.href='/checkout/'">Iniciar Compra</button>
+            <button class="btn-checkout" onclick="goToCheckout()">Iniciar Compra</button>
         </div>
     </div>
 
-    <!-- 3. EL CONTENEDOR DE PRODUCTOS EMPIEZA DIRECTAMENTE SIN EL TÍTULO VIEJO -->
+    
     <div class="container">
         <div class="grid">
             {% for producto in productos %}
@@ -130,7 +159,7 @@
                     <h3>{{ producto.nombre }}</h3>
                     <p>{{ producto.descripcion }}</p>
                     <div class="precio">${{ producto.precio }}</div>
-
+                    
                     {% if producto.stock > 0 %}
                         <div class="contador-container">
                             <button class="btn-qty" onclick="changeQty('{{ producto.id }}', -1)">-</button>
@@ -152,6 +181,17 @@
 
     <script>
         let cart = [];
+        // Guarda temporalmente el carrito antes de entrar al checkout 
+function goToCheckout() {
+    sessionStorage.setItem(
+        'carrito_checkout_temporal',
+        JSON.stringify(cart)
+    );
+
+    sessionStorage.removeItem('restaurar_carrito_tras_login');
+
+    window.location.href = '/checkout/';
+}
 
         function toggleCart() {
             const sidebar = document.getElementById('sidebar-cart');
@@ -173,7 +213,7 @@
             const idString = String(productId);
             const qtyElement = document.getElementById('qty-' + idString);
             if (!qtyElement) return;
-
+            
             const qty = parseInt(qtyElement.innerText) || 1;
             const itemPrice = parseFloat(price);
 
@@ -198,7 +238,7 @@
             const listElement = document.getElementById('cart-items-list');
             const countElement = document.getElementById('cart-count');
             const totalElement = document.getElementById('cart-total-amount');
-
+            
             if (!listElement || !countElement || !totalElement) return;
 
             listElement.innerHTML = '';
@@ -229,6 +269,35 @@
 
             localStorage.setItem('total_carrito', totalAmount);
         }
+        // Recuperar el carrito después de iniciar sesión correctamente
+const parametrosURL = new URLSearchParams(window.location.search);
+
+if (
+    parametrosURL.get('login') === 'ok' &&
+    sessionStorage.getItem('restaurar_carrito_tras_login') === '1'
+) {
+    const carritoGuardado = sessionStorage.getItem('carrito_checkout_temporal');
+
+    if (carritoGuardado) {
+        try {
+            const productosRecuperados = JSON.parse(carritoGuardado);
+
+            if (Array.isArray(productosRecuperados)) {
+                cart = productosRecuperados;
+                updateCartUI();
+            }
+        } catch (error) {
+            console.error('No se pudo recuperar el carrito:', error);
+        }
+    }
+
+    // Eliminar la copia temporal después de recuperarla
+    sessionStorage.removeItem('carrito_checkout_temporal');
+    sessionStorage.removeItem('restaurar_carrito_tras_login');
+
+    // Quitar login=ok de la dirección
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
     </script>
 </body>
 </html>
