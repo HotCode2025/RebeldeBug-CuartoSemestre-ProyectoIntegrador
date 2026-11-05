@@ -1,17 +1,116 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
+from django.views.decorators.http import require_http_methods
 from .models import Producto
 import mercadopago
 import urllib.parse
+import json
+from django.views.decorators.csrf import ensure_csrf_cookie
 
 # Token unificado de Mercado Pago
 sdk = mercadopago.SDK("APP_USR-3297171459987328-101611-ee33ac5e4ae7360be04f6b1161d1a8cb-3686889775")
 
+@ensure_csrf_cookie
 def home(request):
     productos = Producto.objects.all()
     return render(request, 'home.html', {'productos': productos})
+@require_http_methods(["GET", "POST"])
+def carrito_api(request):
+    carrito = request.session.get('carrito', {})
+
+    # Consultar el carrito
+    if request.method == 'GET':
+        productos = Producto.objects.filter(id__in=carrito.keys())
+
+        items = []
+        total = 0
+        cantidad_total = 0
+
+        for producto in productos:
+            cantidad = int(carrito.get(str(producto.id), 0))
+            subtotal = producto.precio * cantidad
+
+            items.append({
+                'id': producto.id,
+                'nombre': producto.nombre,
+                'precio': str(producto.precio),
+                'cantidad': cantidad,
+                'subtotal': str(subtotal),
+                'stock': producto.stock,
+                'disponible': producto.disponible
+            })
+
+            total += subtotal
+            cantidad_total += cantidad
+
+        return JsonResponse({
+            'items': items,
+            'total': str(total),
+            'cantidad_total': cantidad_total
+        })
+
+    # Agregar, eliminar o vaciar productos
+    try:
+        datos = json.loads(request.body)
+        accion = datos.get('accion')
+        producto_id = datos.get('producto_id')
+
+        if accion == 'vaciar':
+            request.session['carrito'] = {}
+            request.session.modified = True
+            return JsonResponse({'mensaje': 'Carrito vaciado'})
+
+        if accion not in ['agregar', 'eliminar']:
+            return JsonResponse(
+                {'error': 'Operación no válida'},
+                status=400
+            )
+
+        producto = Producto.objects.get(
+            id=producto_id,
+            disponible=True
+        )
+
+        if accion == 'agregar':
+            cantidad = int(datos.get('cantidad', 1))
+
+            if cantidad < 1:
+                return JsonResponse(
+                    {'error': 'La cantidad debe ser mayor que cero'},
+                    status=400
+                )
+
+            cantidad_actual = int(carrito.get(str(producto.id), 0))
+            nueva_cantidad = cantidad_actual + cantidad
+
+            if nueva_cantidad > producto.stock:
+                return JsonResponse({
+                    'error': f'Solo quedan {producto.stock} unidades disponibles'
+                }, status=400)
+
+            carrito[str(producto.id)] = nueva_cantidad
+
+        elif accion == 'eliminar':
+            carrito.pop(str(producto.id), None)
+
+        request.session['carrito'] = carrito
+        request.session.modified = True
+
+        return JsonResponse({'mensaje': 'Carrito actualizado'})
+
+    except Producto.DoesNotExist:
+        return JsonResponse(
+            {'error': 'El producto no existe o no está disponible'},
+            status=404
+        )
+
+    except (ValueError, TypeError, json.JSONDecodeError):
+        return JsonResponse(
+            {'error': 'Los datos enviados no son válidos'},
+            status=400
+        )
 
 def checkout(request):
     if request.method == 'POST':

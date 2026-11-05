@@ -183,124 +183,203 @@ contemplada para la Fase 2 del desarrollo.
     </div>
 
     <script>
-        let cart = [];
-        // Guarda temporalmente el carrito antes de entrar al checkout 
+        
+let cart = [];
+
+
+function obtenerCSRFToken() {
+    const cookie = document.cookie
+        .split('; ')
+        .find(fila => fila.startsWith('csrftoken='));
+
+    return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
+}
+
+
+async function cargarCarrito() {
+    try {
+        const respuesta = await fetch('/carrito/');
+        const datos = await respuesta.json();
+
+        cart = datos.items.map(item => ({
+            id: String(item.id),
+            name: item.nombre,
+            price: parseFloat(item.precio),
+            qty: item.cantidad
+        }));
+
+        updateCartUI();
+    } catch (error) {
+        console.error('Error al cargar el carrito:', error);
+    }
+}
+
+
+async function enviarAccionCarrito(accion, productoId = null, cantidad = 1) {
+    try {
+        const respuesta = await fetch('/carrito/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': obtenerCSRFToken()
+            },
+            body: JSON.stringify({
+                accion: accion,
+                producto_id: productoId,
+                cantidad: cantidad
+            })
+        });
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+            alert(datos.error || 'No se pudo actualizar el carrito.');
+            return false;
+        }
+
+        await cargarCarrito();
+        return true;
+
+    } catch (error) {
+        console.error('Error al comunicarse con Django:', error);
+        alert('No se pudo conectar con el servidor.');
+        return false;
+    }
+}
+
+// Ir al checkout
 function goToCheckout() {
     sessionStorage.setItem(
         'carrito_checkout_temporal',
         JSON.stringify(cart)
     );
 
-    sessionStorage.removeItem('restaurar_carrito_tras_login');
-
     window.location.href = '/checkout/';
 }
 
-        function toggleCart() {
-            const sidebar = document.getElementById('sidebar-cart');
-            if (sidebar) sidebar.classList.toggle('active');
-        }
 
-        function changeQty(productId, change) {
-            const idString = String(productId);
-            const qtyElement = document.getElementById('qty-' + idString);
-            if (qtyElement) {
-                let currentQty = parseInt(qtyElement.innerText) || 1;
-                currentQty += change;
-                if (currentQty < 1) currentQty = 1;
-                qtyElement.innerText = currentQty;
-            }
-        }
+function toggleCart() {
+    const sidebar = document.getElementById('sidebar-cart');
 
-        function addToCart(productId, name, price) {
-            const idString = String(productId);
-            const qtyElement = document.getElementById('qty-' + idString);
-            if (!qtyElement) return;
-            
-            const qty = parseInt(qtyElement.innerText) || 1;
-            const itemPrice = parseFloat(price);
-
-            const existingItem = cart.find(item => item.id === idString);
-            if (existingItem) {
-                existingItem.qty += qty;
-            } else {
-                cart.push({ id: idString, name: name, price: itemPrice, qty: qty });
-            }
-
-            qtyElement.innerText = "1";
-            updateCartUI();
-        }
-
-        function removeFromCart(productId) {
-            const idString = String(productId);
-            cart = cart.filter(item => item.id !== idString);
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            const listElement = document.getElementById('cart-items-list');
-            const countElement = document.getElementById('cart-count');
-            const totalElement = document.getElementById('cart-total-amount');
-            
-            if (!listElement || !countElement || !totalElement) return;
-
-            listElement.innerHTML = '';
-            let totalCount = 0;
-            let totalAmount = 0;
-
-            cart.forEach(item => {
-                totalCount += item.qty;
-                totalAmount += (item.price * item.qty);
-
-                const li = document.createElement('li');
-                li.className = 'cart-item';
-                li.innerHTML = `
-                    <div>
-                        <strong>${item.name}</strong><br>
-                        ${item.qty} x $${item.price}
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
-                        <span>$${item.price * item.qty}</span>
-                        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">×</button>
-                    </div>
-                `;
-                listElement.appendChild(li);
-            });
-
-            countElement.innerText = totalCount;
-            totalElement.innerText = '\$' + totalAmount;
-
-            localStorage.setItem('total_carrito', totalAmount);
-        }
-        // Recuperar el carrito después de iniciar sesión correctamente
-const parametrosURL = new URLSearchParams(window.location.search);
-
-if (
-    parametrosURL.get('login') === 'ok' &&
-    sessionStorage.getItem('restaurar_carrito_tras_login') === '1'
-) {
-    const carritoGuardado = sessionStorage.getItem('carrito_checkout_temporal');
-
-    if (carritoGuardado) {
-        try {
-            const productosRecuperados = JSON.parse(carritoGuardado);
-
-            if (Array.isArray(productosRecuperados)) {
-                cart = productosRecuperados;
-                updateCartUI();
-            }
-        } catch (error) {
-            console.error('No se pudo recuperar el carrito:', error);
-        }
+    if (sidebar) {
+        sidebar.classList.toggle('active');
     }
-
-    // Eliminar la copia temporal después de recuperarla
-    sessionStorage.removeItem('carrito_checkout_temporal');
-    sessionStorage.removeItem('restaurar_carrito_tras_login');
-
-    // Quitar login=ok de la dirección
-    window.history.replaceState({}, document.title, window.location.pathname);
 }
+
+
+function changeQty(productId, change) {
+    const qtyElement = document.getElementById('qty-' + productId);
+
+    if (qtyElement) {
+        let cantidad = parseInt(qtyElement.innerText) || 1;
+        cantidad += change;
+
+        if (cantidad < 1) {
+            cantidad = 1;
+        }
+
+        qtyElement.innerText = cantidad;
+    }
+}
+
+// Agregar producto a la sesión de Django
+async function addToCart(productId, name, price) {
+    const qtyElement = document.getElementById('qty-' + productId);
+
+    if (!qtyElement) return;
+
+    const cantidad = parseInt(qtyElement.innerText) || 1;
+
+    const actualizado = await enviarAccionCarrito(
+        'agregar',
+        productId,
+        cantidad
+    );
+
+    if (actualizado) {
+        qtyElement.innerText = '1';
+    }
+}
+
+async function removeFromCart(productId) {
+    await enviarAccionCarrito('eliminar', productId);
+}
+
+
+function updateCartUI() {
+    const listElement = document.getElementById('cart-items-list');
+    const countElement = document.getElementById('cart-count');
+    const totalElement = document.getElementById('cart-total-amount');
+
+    if (!listElement || !countElement || !totalElement) return;
+
+    listElement.innerHTML = '';
+
+    let totalCount = 0;
+    let totalAmount = 0;
+
+    cart.forEach(item => {
+        totalCount += item.qty;
+        totalAmount += item.price * item.qty;
+
+        const li = document.createElement('li');
+        li.className = 'cart-item';
+
+        const informacion = document.createElement('div');
+
+        const nombre = document.createElement('strong');
+        nombre.textContent = item.name;
+
+        const detalle = document.createElement('div');
+        detalle.textContent = `${item.qty} x $${item.price}`;
+
+        informacion.appendChild(nombre);
+        informacion.appendChild(detalle);
+
+        const acciones = document.createElement('div');
+        acciones.style.display = 'flex';
+        acciones.style.alignItems = 'center';
+        acciones.style.gap = '0.5rem';
+
+        const subtotal = document.createElement('span');
+        subtotal.textContent = `$${(item.price * item.qty).toFixed(2)}`;
+
+        const botonEliminar = document.createElement('button');
+        botonEliminar.className = 'cart-item-remove';
+        botonEliminar.textContent = '×';
+        botonEliminar.onclick = () => removeFromCart(item.id);
+
+        acciones.appendChild(subtotal);
+        acciones.appendChild(botonEliminar);
+
+        li.appendChild(informacion);
+        li.appendChild(acciones);
+
+        listElement.appendChild(li);
+    });
+
+    countElement.innerText = totalCount;
+    totalElement.innerText = '$' + totalAmount.toFixed(2);
+
+    localStorage.setItem('total_carrito', totalAmount.toFixed(2));
+}
+
+
+cargarCarrito().then(() => {
+    const parametrosURL = new URLSearchParams(window.location.search);
+
+    if (parametrosURL.get('login') === 'ok') {
+        sessionStorage.removeItem('carrito_checkout_temporal');
+        sessionStorage.removeItem('restaurar_carrito_tras_login');
+
+        window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+        );
+    }
+});
+
     </script>
 </body>
 </html>
