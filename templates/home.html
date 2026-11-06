@@ -169,7 +169,7 @@ contemplada para la Fase 2 del desarrollo.
                             <span class="qty-input" id="qty-{{ producto.id }}">1</span>
                             <button class="btn-qty" onclick="changeQty('{{ producto.id }}', 1)">+</button>
                         </div>
-                        <button class="btn-add" onclick="addToCart('{{ producto.id }}', '{{ producto.nombre }}', {{ producto.precio }})">Añadir al Carrito</button>
+                        <button class="btn-add" onclick="addToCart('{{ producto.id }}', '{{ producto.nombre }}', '{{ producto.precio }}')">Añadir al Carrito</button>
                     {% else %}
                         <span class="badge" style="margin-top: 1rem;">Agotado</span>
                         <button class="btn-add btn-disabled" disabled>Sin Stock</button>
