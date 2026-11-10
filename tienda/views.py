@@ -69,7 +69,11 @@ def checkout(request):
             'horario': horario,
             'total': precio_final
         }
+
+        #Sólo para grabar el video local - No copiar a PythonAnywhere
+        return redirect('/pedido-exitoso/')
         
+    
         # 3. Preferencia con las URLs de retorno activas hacia tu entorno local
         preference_data = {
             "items": [
