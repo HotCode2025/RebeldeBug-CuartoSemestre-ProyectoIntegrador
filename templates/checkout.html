@@ -1,37 +1,41 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
+<!-- CONTRIBUTOR CHECK - SCRUM MASTER & FRONTEND: Jimena Pérez -->
+<!-- Validación de sprints completada. Estructura adaptativa y responsive del formulario integrada con CSS Flexbox. -->
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finalizar Pedido | Pastas a Colores</title>
     <link href="https://googleapis.com" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Montserrat', sans-serif; 
-            background-image: url("{% static 'imagenes/Mantel.PNG' %}"); 
-            background-size: 240px; 
-            background-repeat: repeat; 
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-image: url("{% static 'imagenes/Mantel.PNG' %}");
+            background-size: 240px;
+            background-repeat: repeat;
             background-color: rgba(0, 0, 0, 0.3); /* Velo negro al 60% */
-            background-blend-mode: multiply; 
-            color: #1C1C1C; 
-            margin: 0; 
-            padding: 0; 
+            background-blend-mode: multiply;
+            color: #1C1C1C;
+            margin: 0;
+            padding: 0;
         }
         .main-header {
-            background-color: #1C1C1C; 
+            background-color: #1C1C1C;
             width: 100%;
-            padding: 2rem 0; 
+            padding: 2rem 0;
             display: flex;
-            justify-content: center; 
-            align-items: center; 
+            justify-content: center;
+            align-items: center;
             margin: 0;
         }
         .logo-container img {
-            width: 250px; 
+            width: 250px;
             height: auto;
             display: block;
-            border-radius: 50%; 
+            border-radius: 50%;
         }
         .checkout-container {
             max-width: 600px;
@@ -141,7 +145,7 @@
             {% csrf_token %}
             <!-- Tu input oculto para pasar el total a Mercado Pago -->
             <input type="hidden" id="total_final_input" name="total_final_input" value="0">
-            
+
             <!-- Bloque del Domicilio de Entrega -->
             <div id="shipping-fields">
                 <h2>Datos para el Envío</h2>
@@ -185,18 +189,27 @@
 
             <button type="submit" class="btn-submit" id="btn-text">Proceder al Pago con Mercado Pago</button>
         </form>
-        
+
         <a href="{% url 'home' %}" class="btn-back">← Volver a la tienda</a>
     </div>
 
     <script>
-        // Mantiene tu lógica original para recuperar el total acumulado de tu carrito
-        document.getElementById('form-envio').addEventListener('submit', function(e) {
-            let totalMemory = localStorage.getItem('total_carrito') || '0';
-            totalMemory = totalMemory.replace('$', '').trim();
-            document.getElementById('total_final_input').value = totalMemory;
-        });
+        // Recupera el total acumulado del carrito
+document.getElementById('form-envio').addEventListener('submit', function(e) {
+    let totalMemory = localStorage.getItem('total_carrito') || '0';
+    totalMemory = totalMemory.replace('$', '').trim();
+    document.getElementById('total_final_input').value = totalMemory;
 
+    // Si el usuario está iniciando sesión, marca la intención de recuperar el carrito
+    const nombre = document.querySelector('[name="nombre"]');
+
+    if (nombre && nombre.value.trim() === '') {
+        sessionStorage.setItem('restaurar_carrito_tras_login', '1');
+    } else {
+        sessionStorage.removeItem('restaurar_carrito_tras_login');
+        sessionStorage.removeItem('carrito_checkout_temporal');
+    }
+});
         // Alternancia visual para cambiar entre Modo Registro y Modo Login sin recargar la web
         function toggleLoginForm(showLogin) {
             const shippingFields = document.getElementById('shipping-fields');
@@ -212,7 +225,7 @@
                 toggleBannerBack.classList.remove('hidden');
                 accountTitle.innerText = "Iniciar Sesión";
                 btnText.innerText = "Ingresar y Ver Mi Pedido";
-                
+
                 // Remueve obligatoriedad de envío si solo se va a loguear
                 shippingInputs.forEach(input => input.removeAttribute('required'));
             } else {
@@ -221,7 +234,7 @@
                 toggleBannerBack.classList.add('hidden');
                 accountTitle.innerText = "Crear Cuenta de Cliente";
                 btnText.innerText = "Proceder al Pago con Mercado Pago";
-                
+
                 // Restaura los campos obligatorios para el delivery
                 shippingInputs.forEach(input => input.setAttribute('required', ''));
             }
